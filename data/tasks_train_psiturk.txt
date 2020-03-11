@@ -1,0 +1,14 @@
+IN: p1 OUT: c1
+IN: p2 OUT: c2
+IN: p3 OUT: c3
+IN: p4 OUT: c4
+IN: p1 m1 OUT: c1 c1 c1
+IN: p2 m1 OUT: c2 c2 c2
+IN: p3 m2 p1 OUT: c3 c1 c3
+IN: p2 m2 p3 OUT: c2 c3 c2
+IN: p1 m3 p2 OUT: c2 c1
+IN: p2 m3 p3 OUT: c3 c2
+IN: p2 m1 m3 p3 OUT: c3 c2 c2 c2
+IN: p2 m3 p3 m1 OUT: c3 c3 c3 c2
+IN: p3 m3 p1 m2 p2 OUT: c1 c2 c1 c3
+IN: p3 m2 p1 m3 p2 OUT: c2 c3 c1 c3
