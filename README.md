@@ -1,6 +1,6 @@
+# PyTorch implementation of "Learning Compositional Rules via Neural Program Synthesis"
 
-
-# Requirements
+## Requirements
 
 Python 3.7
 
@@ -22,7 +22,7 @@ mkdir testnums
 
 We use `zsh`, though `bash` should also work for running the `.sh` scripts.
 
-# MiniSCAN experiments
+## MiniSCAN experiments
 
 to train synthesis network:
 ```
@@ -45,7 +45,7 @@ zsh human_miniscan.sh
 ```
 
 
-# SCAN experiments
+## SCAN experiments
 
 to train synthesis network:
 ```
@@ -68,12 +68,12 @@ zsh scan_search_run.sh
 ```
 
 
-to replicate results of full synthesis model with fixed example sets (Supplement Table 3):
+to replicate results of full synthesis model with fixed example sets (Supplement Table 6):
 ```
 zsh SCAN_fixed_budget.sh
 ```
 
-# Number word experments
+## Number word experments
 
 to train synthesis network:
 ```
