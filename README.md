@@ -1,6 +1,7 @@
 # PyTorch implementation of "Learning Compositional Rules via Neural Program Synthesis"
 
 This is the codebase for the following paper:
+
 _Learning Compositional Rules via Neural Program Synthsis_\
 Maxwell I. Nye, Armando Solar-Lezama, Joshua B. Tenenbaum, Brenden M. Lake\
 [https://arxiv.org/pdf/2003.05562.pdf](https://arxiv.org/pdf/2003.05562.pdf)
