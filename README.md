@@ -1,5 +1,12 @@
 # PyTorch implementation of "Learning Compositional Rules via Neural Program Synthesis"
 
+This is the codebase for the following paper:\
+_Learning Compositional Rules via Neural Program Synthsis_\
+Maxwell I. Nye, Armando Solar-Lezama, Joshua B. Tenenbaum, Brenden M. Lake\
+[https://arxiv.org/pdf/2003.05562.pdf](https://arxiv.org/pdf/2003.05562.pdf)
+
+Much of this code is based on the [meta seq2seq](https://github.com/facebookresearch/meta_seq2seq) code by Brenden Lake.
+
 ## Requirements
 
 Python 3.7
