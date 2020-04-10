@@ -70,8 +70,10 @@ n_ho_rules = range(3, 9)
 
 rhs_token_prims = [Primitive(token, tRHSToken, token) for token in RHSTokens]
 lhs_token_prims = [Primitive(token, tLHSToken, token) for token in LHSTokens]
-prim_list_constructors = [Primitive(f"{i}_prims", multiArrow(tPrimRule, tPrimList, i), _list_constructor(i)) for i in n_prims]
-ho_list_constructors = [Primitive(f"{i}_ho_rules", multiArrow(tHORule, tHOList, i), _list_constructor(i)) for i in n_ho_rules]
+prim_list_constructors = [Primitive(f"{i}_prims", 
+    multiArrow(tPrimRule, tPrimList, i), _list_constructor(i)) for i in n_prims]
+ho_list_constructors = [Primitive(f"{i}_ho_rules", 
+    multiArrow(tHORule, tHOList, i), _list_constructor(i)) for i in n_ho_rules]
 ints = [Primitive(str(i), tint, i) for i in range(1, 4)]
 
 Primitives = [
@@ -97,6 +99,18 @@ Primitives = [
     Primitive("u_rule", tLastRule, _u_rule),
     ]
 
+def constructList(lst):
+    s1, s2 = lst[0], lst[1]
+    lst = lst[2:]
+
+    e = buildFromArgs( Primitive.GLOBALS["pos_start"], 
+        [Primitive.GLOBALS[f"pos{s1}"], Primitive.GLOBALS[f"pos{s2}"] ] 
+        )
+    
+    for i in lst:
+        e = buildFromArgs( Primitive.GLOBALS["pos_append"]
+            [Primitive.GLOBALS[f"pos{i}"] , e])
+    return e 
 
 def buildFromArgs(fn, args):
     e = fn
@@ -106,12 +120,32 @@ def buildFromArgs(fn, args):
 
 def buildPrimRule(prim):
     lhs, _ , rhs = prim
-    return buildFromArgs(Primitive.GLOBALS["prim_rule"], [Primitive.GLOBALS[lhs] , Primitive.GLOBALS[rhs]] )
+    return buildFromArgs(Primitive.GLOBALS["prim_rule"],
+        [Primitive.GLOBALS[lhs] , Primitive.GLOBALS[rhs]] )
 
-def buildHORule(ho_rule):
-    
-    
-    return HORule
+def buildHORule(r):
+    if r.index('->') == 2:
+        #suffix rule
+        var, token = r[0], r[1]
+        var = var[0] #ignore the 1 or 2 at the end
+        n = len(r) - 3
+        return buildFromArgs(Primitive.GLOBALS["suffix_rule"], 
+            [Primitive.GLOBALS[token], Primitive.GLOBALS[var], Primitive.GLOBALS[str(n)]] )
+
+    elif r.index('->') == 3:
+        #infix rule
+        var1, token, var2 = r[:3]
+        lst = r[4:]
+        v1,v2 = var1[0], var2[0]
+
+        d = {f"[{var2}]" : 0 , f"[{var2}]" : 1 }
+
+        return buildFromArgs(Primitive.GLOBALS["infix_rule"].
+            [Primitive.GLOBALS[], Primitive.GLOBALS[v1], Primitive.GLOBALS[v2] , ] 
+            constructList( [d[l] for l in lst ] ))
+
+    else: assert 0
+
 
 def rulesToECProg(rules):
 
