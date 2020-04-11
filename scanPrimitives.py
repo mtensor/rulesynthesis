@@ -29,13 +29,14 @@ def _list_constructor(n):
         if i == 0:
             return lst
         else:
-            return lambda x: fn(i-1, [x]+lst)
+            return lambda x: fn(i-1, lst + [x])
     return fn(n, [])
 
 def _prim_rule(x):
-    return lambda y: x + ['->'] + y
+    return lambda y: [x, '->', y]
 
-def _grammar_constructor(primLst): lambda HOLst: lambda lastRule: primLst + HOLst + [lastRule]
+def _grammar_constructor(primLst):
+    return lambda HOLst: lambda lastRule: primLst + HOLst + [lastRule]
 
 def _suffix_rule(lhsToken):
     def fs(token, var, n):
@@ -53,7 +54,7 @@ def _infix_rule(lhsToken):
 
         rule = [in_v1, token, in_v2, '->'] + [ out_vs[i] for i in lst]
         return rule
-    return lambda v: lambda v2: lambda lst: fi(lhsToken, v1, v2, lst)
+    return lambda v1: lambda v2: lambda lst: fi(lhsToken, v1, v2, lst)
 
 _concat_rule = ['u1', 'x1', '->', '[u1]', '[x1]']
 _u_rule = ['u1, u2', '->', '[u2]', '[u1]']
@@ -75,13 +76,12 @@ tPos = baseType("Pos")
 
 
 #params
-RHSTokens = []
-LHSTokens = [""]
+RHSTokens = ["dax", "lug", "zup", "wif", "fep", "kiki", "blicket"]
+LHSTokens = ["RED", "BLUE", "YELLOW", "GREEN"]
 n_prims = range(3, 9)
 n_ho_rules = range(3, 9)
 
 #syntax:
-
 rhs_token_prims = [Primitive(token, tRHSToken, token) for token in RHSTokens]
 lhs_token_prims = [Primitive(token, tLHSToken, token) for token in LHSTokens]
 prim_list_constructors = [Primitive(f"{i}_prims", 
@@ -106,7 +106,7 @@ Primitives = [
     ] + ints + [
     Primitive("pos0", tPos, 0),
     Primitive("pos1", tPos, 1),
-    Primitive("pos_append", arrow(tPos, tlist(tPos),  tlist(tPos)),  lambda x: lambda lst: [x] + lst ),
+    Primitive("pos_append", arrow(tPos, tlist(tPos),  tlist(tPos)),  lambda x: lambda lst: lst + [x] ),
     Primitive("pos_start", arrow(tPos, tPos, tlist(tPos)) , lambda x: lambda y: [x, y] ),
     #last Rules:
     Primitive("concat_rule", tLastRule, _concat_rule),
@@ -116,13 +116,11 @@ Primitives = [
 def constructList(lst):
     s1, s2 = lst[0], lst[1]
     lst = lst[2:]
-
     e = buildFromArgs( Primitive.GLOBALS["pos_start"], 
         [Primitive.GLOBALS[f"pos{s1}"], Primitive.GLOBALS[f"pos{s2}"] ] 
         )
-    
     for i in lst:
-        e = buildFromArgs( Primitive.GLOBALS["pos_append"]
+        e = buildFromArgs( Primitive.GLOBALS["pos_append"],
             [Primitive.GLOBALS[f"pos{i}"] , e])
     return e 
 
@@ -151,19 +149,20 @@ def buildHORule(r):
         var1, token, var2 = r[:3]
         lst = r[4:]
         v1,v2 = var1[0], var2[0]
-
-        d = {f"[{var2}]" : 0 , f"[{var2}]" : 1 }
-
+        d = {f"[{var1}]" : 0 , f"[{var2}]" : 1 }
         return buildFromArgs(Primitive.GLOBALS["infix_rule"],
             [Primitive.GLOBALS[token], Primitive.GLOBALS[v1], Primitive.GLOBALS[v2],
-             constructList( [d[l] for l in lst ] )]
-             )
-
+             constructList( [d[l] for l in lst ] )] )
     else: assert 0
 
+def buildLastRule(r):
+    if r == _concat_rule:
+        return Primitive.GLOBALS["concat_rule"]
+    elif r == _u_rule:
+        return Primitive.GLOBALS["u_rule"]
+    else: assert 0
 
 def rulesToECProg(rules):
-
     g = Primitive.GLOBALS["grammar"]
 
     prims = [ rule for rule in rules if rule.index('->') == 1 ]
@@ -172,11 +171,11 @@ def rulesToECProg(rules):
 
     #primRules
     n = len(prims)
-    primRules = buildFromArgs(Primitive.GLOBALS(f"{n}_prims"), [buildPrimRule(prim) for prim in prims] )
+    primRules = buildFromArgs(Primitive.GLOBALS[f"{n}_prims"], [buildPrimRule(prim) for prim in prims] )
     
     #HO rules
     n = len(ho_rules)
-    HORules = buildFromArgs(Primitive.GLOBALS(f"{n}_ho_rules"), [buildHORule(r) for r in ho_rules] )
+    HORules = buildFromArgs(Primitive.GLOBALS[f"{n}_ho_rules"], [buildHORule(r) for r in ho_rules] )
 
     #last rule
     lastRule = buildLastRule(last_rule) #TODO
@@ -186,17 +185,30 @@ def rulesToECProg(rules):
 
 
 if __name__ == "__main__":
-    #g = Grammar.uniform(deepcoderPrimitives())
-    # g = Grammar.fromProductions(deepcoderProductions(), logVariable=.9)
-    # request = arrow(tlist(tint), tint, tint)
-    # p = g.sample(request)
-    # print("request:", request)
-    # print("program:")
-    # print(prettyProgram(p))
-    # print("flattened_program:")
-    # flat = flatten_program(p)
-    # print(flat)
 
-    f = _list_constructor(4)
-    a = f(1)(2)(3)(4)
-    print(a)
+    # f = _list_constructor(4)
+    # a = f(1)(2)(3)(4)
+    # print(a)
+
+    rules = [
+    "dax -> RED",
+    "lug -> BLUE",
+    "zup -> YELLOW",
+    "wif -> GREEN",
+    "u2 fep -> [u2] [u2] [u2]",
+    "x2 kiki x1 -> [x1] [x2]",
+    "u1 blicket u2 -> [u1] [u2] [u1]",
+    "u1 x1 -> [u1] [x1]"
+    ]
+
+    rules = [r.split() for r in rules]
+
+    expr = rulesToECProg(rules)
+
+    print(expr)
+
+    r = expr.evaluate([])
+    for rule in r: print(rule)
+
+
+
