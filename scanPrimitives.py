@@ -1,8 +1,22 @@
-#imports:
-from program import Primitive, Program, prettyProgram
-from grammar import Grammar
-from type import tlist, tint, tbool, arrow, baseType #, t0, t1, t2
-import math
+import sys
+import os
+#sys.path.append(os.path.abspath('./'))
+sys.path.append(os.path.abspath('./ec'))
+
+try:
+    import binutil  # required to import from dreamcoder modules
+except ModuleNotFoundError:
+    import bin.binutil  # alt import if called as module
+
+from dreamcoder.domains.list.main import main, list_options
+#from dreamcoder.dreamcoder import commandlineArguments
+#from dreamcoder.utilities import numberOfCPUs
+from dreamcoder.program import Primitive, Application
+from dreamcoder.type import tlist, tint, tbool, arrow, baseType #, t0, t1, t2
+
+#from program import Primitive, Program, prettyProgram
+#from grammar import Grammar
+#import math
 
 def multiArrow(i_tp, o_tp, n):
     tpLst = [i_tp for _ in range(n)] + [o_tp]
@@ -42,7 +56,7 @@ def _infix_rule(lhsToken):
     return lambda v: lambda v2: lambda lst: fi(lhsToken, v1, v2, lst)
 
 _concat_rule = ['u1', 'x1', '->', '[u1]', '[x1]']
-_u_rule = ['u1, u2', '->'. '[u2]', '[u1]']
+_u_rule = ['u1, u2', '->', '[u2]', '[u1]']
 
 #types:
 tRHSToken = baseType("RHSToken")
@@ -140,9 +154,10 @@ def buildHORule(r):
 
         d = {f"[{var2}]" : 0 , f"[{var2}]" : 1 }
 
-        return buildFromArgs(Primitive.GLOBALS["infix_rule"].
-            [Primitive.GLOBALS[], Primitive.GLOBALS[v1], Primitive.GLOBALS[v2] , ] 
-            constructList( [d[l] for l in lst ] ))
+        return buildFromArgs(Primitive.GLOBALS["infix_rule"],
+            [Primitive.GLOBALS[token], Primitive.GLOBALS[v1], Primitive.GLOBALS[v2],
+             constructList( [d[l] for l in lst ] )]
+             )
 
     else: assert 0
 

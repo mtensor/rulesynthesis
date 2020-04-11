@@ -1,0 +1,3 @@
+[submodule "ec"]
+	path = ec
+	url = git@github.com:ellisk42/ec.git
