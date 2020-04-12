@@ -74,44 +74,43 @@ tGrammar = baseType("Grammar")
 tVar = baseType("Var")
 tPos = baseType("Pos")
 
+def buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules):
+    #params
+    LHSTokens = inSymbols
+    RHSTokens = outSymbols
+    n_prims = range(3, 9) #TODO
+    n_ho_rules = range(2, 9) #TODO
+    #syntax:
+    rhs_token_prims = [Primitive(token, tRHSToken, token) for token in RHSTokens]
+    lhs_token_prims = [Primitive(token, tLHSToken, token) for token in LHSTokens]
+    prim_list_constructors = [Primitive(f"{i}_prims", 
+        multiArrow(tPrimRule, tPrimList, i), _list_constructor(i)) for i in n_prims]
+    ho_list_constructors = [Primitive(f"{i}_ho_rules", 
+        multiArrow(tHORule, tHOList, i), _list_constructor(i)) for i in n_ho_rules]
+    ints = [Primitive(str(i), tint, i) for i in range(1, 4)]
 
-#params
-RHSTokens = ["dax", "lug", "zup", "wif", "fep", "kiki", "blicket"]
-LHSTokens = ["RED", "BLUE", "YELLOW", "GREEN"]
-n_prims = range(3, 9)
-n_ho_rules = range(3, 9)
+    Primitives = [
+        Primitive("grammar", arrow(tPrimList, tHOList, tLastRule, tGrammar), _grammar_constructor),
+        #primitive rules:
+        ] + prim_list_constructors + [
+        Primitive("prim_rule", arrow(tLHSToken, tRHSToken, tPrimRule), _prim_rule ),
+        #Higher order rules:
+        ] + ho_list_constructors + rhs_token_prims + lhs_token_prims + [
+        Primitive("suffix_rule", arrow(tLHSToken, tVar, tint,  tHORule), _suffix_rule),
+        Primitive("infix_rule", arrow( tLHSToken, tVar, tVar, tlist(tPos), tHORule), _infix_rule),
+        Primitive("x", tVar, "x"),
+        Primitive("u", tVar, "u"),
+        ] + ints + [
+        Primitive("pos0", tPos, 0),
+        Primitive("pos1", tPos, 1),
+        Primitive("pos_append", arrow(tPos, tlist(tPos),  tlist(tPos)),  lambda x: lambda lst: lst + [x] ),
+        Primitive("pos_start", arrow(tPos, tPos, tlist(tPos)) , lambda x: lambda y: [x, y] ),
+        #last Rules:
+        Primitive("concat_rule", tLastRule, _concat_rule),
+        Primitive("u_rule", tLastRule, _u_rule),
+        ]
 
-#syntax:
-rhs_token_prims = [Primitive(token, tRHSToken, token) for token in RHSTokens]
-lhs_token_prims = [Primitive(token, tLHSToken, token) for token in LHSTokens]
-prim_list_constructors = [Primitive(f"{i}_prims", 
-    multiArrow(tPrimRule, tPrimList, i), _list_constructor(i)) for i in n_prims]
-ho_list_constructors = [Primitive(f"{i}_ho_rules", 
-    multiArrow(tHORule, tHOList, i), _list_constructor(i)) for i in n_ho_rules]
-ints = [Primitive(str(i), tint, i) for i in range(1, 4)]
-
-Primitives = [
-    Primitive("grammar", arrow(tPrimList, tHOList, tLastRule, tGrammar), _grammar_constructor),
-    #primitive rules:
-    ] + prim_list_constructors + [
-    Primitive("prim_rule", arrow(tLHSToken, tRHSToken, tPrimRule), _prim_rule ),
-    #Higher order rules:
-    ] + ho_list_constructors + [
-    rhs_token_prims,
-    lhs_token_prims,
-    Primitive("suffix_rule", arrow(tLHSToken, tVar, tint,  tHORule), _suffix_rule),
-    Primitive("infix_rule", arrow( tLHSToken, tVar, tVar, tlist(tPos), tHORule), _infix_rule),
-    Primitive("x", tVar, "x"),
-    Primitive("u", tVar, "u"),
-    ] + ints + [
-    Primitive("pos0", tPos, 0),
-    Primitive("pos1", tPos, 1),
-    Primitive("pos_append", arrow(tPos, tlist(tPos),  tlist(tPos)),  lambda x: lambda lst: lst + [x] ),
-    Primitive("pos_start", arrow(tPos, tPos, tlist(tPos)) , lambda x: lambda y: [x, y] ),
-    #last Rules:
-    Primitive("concat_rule", tLastRule, _concat_rule),
-    Primitive("u_rule", tLastRule, _u_rule),
-    ]
+    return Primitives
 
 def constructList(lst):
     s1, s2 = lst[0], lst[1]
@@ -183,12 +182,15 @@ def rulesToECProg(rules):
     expr = buildFromArgs(g, [primRules, HORules, lastRule] )
     return expr
 
+def buildBaseGrammar(inLang, outLang): #TODO
+
+    inSymbols = inLang.symbols
+    outSymbols = outLang.symbols
+
+    g = Grammar.uniform(buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules))
+    return g
 
 if __name__ == "__main__":
-
-    # f = _list_constructor(4)
-    # a = f(1)(2)(3)(4)
-    # print(a)
 
     rules = [
     "dax -> RED",
@@ -209,6 +211,33 @@ if __name__ == "__main__":
 
     r = expr.evaluate([])
     for rule in r: print(rule)
+
+    from grammar import Grammar
+    from type import Context
+
+    g = Grammar.uniform(Primitives)
+    request = tGrammar
+
+    print(g.logLikelihood(tGrammar, expr))
+
+    i = 0
+    oldUsedPrims = []
+    for ll,_,p, usedPrims in g.enumeration(Context.EMPTY,[],request,
+                               50., maximumDepth=20 ,uniquePrims=True):
+        #print(p)
+        #print(usedPrims)
+        #print()
+        i+=1
+        if usedPrims != oldUsedPrims:
+            print(p)
+            print(usedPrims)
+            oldUsedPrims = usedPrims
+            print(i)
+
+        #if i> 20: break
+
+
+
 
 
 
