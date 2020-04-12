@@ -11,6 +11,7 @@ from train import gen_samples, train_batched_step, eval_ll, batchtime
 
 
 from deepcoderModel import DeepcoderRecognitionModel, deepcoder_training_step, dc_eval_ll
+from scanPrimitives import buildBaseGrammar
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--num_pretrain_episodes', type=int, default=100000, help='number of episodes for training')
@@ -29,6 +30,7 @@ parser.add_argument('--saved_val_path', type=str, default='miniscan_hard_saved_v
 parser.add_argument('--parallel', type=int, default=None)
 parser.add_argument('--print_freq', type=int, default=100)
 parser.add_argument('--save_freq', type=int, default=500)
+parser.add_argument('--positional', action='store_true')
 args = parser.parse_args()
 args.use_cuda = torch.cuda.is_available()
 if __name__ == '__main__':
@@ -94,7 +96,7 @@ if __name__ == '__main__':
         counter += 1
          
         if episode == 1 or episode % args.print_freq == 0 or episode == dc_model.num_pretrain_episodes:
-            val_loss = dc_eval_ll(samples_val, dc_model) #TODO
+            val_loss = dc_eval_ll(val_states, dc_model) #TODO
             print('{:s} ({:d} {:.0f}% finished) TrainLoss: {:.4f}, ValLoss: {:.4f}'.format(timeSince(start, float(episode) / float(dc_model.num_pretrain_episodes)),
                                  episode, float(episode) / float(dc_model.num_pretrain_episodes) * 100., avg_train_loss/counter, val_loss), flush=True)
             avg_train_loss = 0.

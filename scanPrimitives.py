@@ -17,6 +17,7 @@ from dreamcoder.type import tlist, tint, tbool, arrow, baseType #, t0, t1, t2
 #from program import Primitive, Program, prettyProgram
 #from grammar import Grammar
 #import math
+from dreamcoder.grammar import Grammar
 
 def multiArrow(i_tp, o_tp, n):
     tpLst = [i_tp for _ in range(n)] + [o_tp]
@@ -87,7 +88,7 @@ def buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules):
         multiArrow(tPrimRule, tPrimList, i), _list_constructor(i)) for i in n_prims]
     ho_list_constructors = [Primitive(f"{i}_ho_rules", 
         multiArrow(tHORule, tHOList, i), _list_constructor(i)) for i in n_ho_rules]
-    ints = [Primitive(str(i), tint, i) for i in range(1, 4)]
+    ints = [Primitive(str(i), tint, i) for i in range(1, 20)]
 
     Primitives = [
         Primitive("grammar", arrow(tPrimList, tHOList, tLastRule, tGrammar), _grammar_constructor),
@@ -182,7 +183,7 @@ def rulesToECProg(rules):
     expr = buildFromArgs(g, [primRules, HORules, lastRule] )
     return expr
 
-def buildBaseGrammar(inLang, outLang): #TODO
+def buildBaseGrammar(inLang, outLang, n_prims=None, n_ho_rules=None): #TODO
 
     inSymbols = inLang.symbols
     outSymbols = outLang.symbols

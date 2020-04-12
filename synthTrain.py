@@ -26,6 +26,7 @@ parser.add_argument('--saved_val_path', type=str, default='miniscan_hard_saved_v
 parser.add_argument('--parallel', type=int, default=None)
 parser.add_argument('--print_freq', type=int, default=100)
 parser.add_argument('--save_freq', type=int, default=500)
+parser.add_argument('--positional', action='store_true')
 args = parser.parse_args()
 args.use_cuda = torch.cuda.is_available()
 if __name__ == '__main__':
