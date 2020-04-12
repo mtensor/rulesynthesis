@@ -90,13 +90,13 @@ if __name__ == '__main__':
         if episode > dc_model.num_pretrain_episodes: break
         # Generate a random episode
         
-        train_loss = deepcoder_training_step(samples, dc_model)
+        train_loss = deepcoder_training_step(samples, dc_model, model)
         
         avg_train_loss += train_loss
         counter += 1
          
         if episode == 1 or episode % args.print_freq == 0 or episode == dc_model.num_pretrain_episodes:
-            val_loss = dc_eval_ll(val_states, dc_model) #TODO
+            val_loss = dc_eval_ll(val_states, dc_model, model) #TODO
             print('{:s} ({:d} {:.0f}% finished) TrainLoss: {:.4f}, ValLoss: {:.4f}'.format(timeSince(start, float(episode) / float(dc_model.num_pretrain_episodes)),
                                  episode, float(episode) / float(dc_model.num_pretrain_episodes) * 100., avg_train_loss/counter, val_loss), flush=True)
             avg_train_loss = 0.
