@@ -45,12 +45,12 @@ if __name__ == '__main__':
     else:
         assert False, "not implemented yet"
 
-
+    g = buildBaseGrammar(model.input_lang, model.output_lang)
     path = os.path.join(args.dir_model, args.fn_out_model)
     if os.path.isfile(path):
         dc_model = torch.load(path)
+        dc_model.grammar = g
     else:
-        g = buildBaseGrammar(model.input_lang, model.output_lang) #TODO
         dc_model = DeepcoderRecognitionModel(model.encoder, g, inputDimensionality=args.emb_size)   
         dc_model.num_pretrain_episodes = args.num_pretrain_episodes
     dc_model.train()
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                             get_supervised_batchsize(
                             lambda: gen_samples(
                                 generate_episode_train, model),
-                                        batchsize=args.batchsize), model.pretrain_episode + 1):
+                                        batchsize=args.batchsize), dc_model.pretrain_episode + 1):
 
         dc_model.pretrain_episode = episode
         if episode > dc_model.num_pretrain_episodes: break
@@ -107,7 +107,13 @@ if __name__ == '__main__':
             batchtime['mean']=0
             batchtime['count']=0
             if episode % args.save_freq == 0 or episode == dc_model.num_pretrain_episodes:
+                g = dc_model.grammar
+                dc_model.grammar = None
                 torch.save(dc_model, path)
+                dc_model.grammar = g
             if episode % 10000 == 0 or episode == dc_model.num_pretrain_episodes:
+                g = dc_model.grammar
+                dc_model.grammar = None
                 torch.save(dc_model, path+'_'+str(dc_model.pretrain_episode))
+                dc_model.grammar = g
 
