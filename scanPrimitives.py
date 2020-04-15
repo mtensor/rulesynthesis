@@ -224,7 +224,10 @@ if __name__ == "__main__":
     i = 0
     oldUsedPrims = []
     for ll,_,p, usedPrims in g.enumeration(Context.EMPTY,[],request,
-                               50., maximumDepth=20 ,uniquePrims=True):
+                                            50.,
+                                            lowerBound=49.5,
+                                            maximumDepth=20,
+                                            uniquePrims=True):
         #print(p)
         #print(usedPrims)
         #print()
