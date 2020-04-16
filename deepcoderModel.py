@@ -127,3 +127,13 @@ class DeepcoderRecognitionModel(nn.Module):
                     self.grammar.productions)])
             gs.append(g)
         return gs
+
+
+    def infer_grammar(self, sample):
+        g = self.infer_grammars([sample])[0]
+
+        return Grammar(g.logVariable.data.item(), 
+                       [ (l.data.item(), t, p)
+                         for l, t, p in g.productions],
+                       continuationType=g.continuationType)
+

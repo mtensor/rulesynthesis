@@ -9,7 +9,7 @@ for param in 10 30 50 70
 	do
 		echo sup$param.p
 		echo rules\_$type\_$param 
-		python evaluate.py --seperate_query --fn_out_model 'miniscan_final.p' --batchsize 128 --timeout 30 --n_test 5 --new_test_ep rules\_$type\_$param --load_data data/sup$param.p --savefile results/ours$type$param${salt}.p &> logs/ours$type$param${salt}.txt
+		python evaluate.py --seperate_query --fn_out_model 'miniscan_final.p' --batchsize 128 --timeout 30 --n_test 50 --new_test_ep rules\_$type\_$param --load_data data/sup$param.p --savefile results/ours$type$param${salt}.p &> logs/ours$type$param${salt}.txt
 		python evaluate.py --seperate_query --fn_out_model 'miniscan_final.p' --nosearch --batchsize 128 --timeout 30 --new_test_ep rules\_$type\_$param --load_data data/sup$param.p --savefile results/nosearch$type$param${salt}.p &> logs/nosearch$type$param${salt}.txt
 		python train_metanet_attn.py --fn_out_model 'metas2s_baseline.p' --episode_type 'rules_gen' --load_data data/sup$param.p &> logs/s2s$type$param${salt}.txt
 

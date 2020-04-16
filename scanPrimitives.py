@@ -193,6 +193,15 @@ def buildBaseGrammar(inLang, outLang, n_prims=None, n_ho_rules=None): #TODO
 
 if __name__ == "__main__":
 
+
+    input_symbols_list_default = ['dax', 'lug', 'fep', 'blicket', 'kiki', 'tufa','gazzer', 'zup', 'wif'] #changed order for sorting
+    output_symbols_list_default = ['RED', 'YELLOW', 'GREEN', 'BLUE', 'PURPLE', 'PINK', 'BLACK', 'WHITE']
+
+    inSymbols = input_symbols_list_default + ['mup', 'dox', 'kleek']
+    outSymbols = output_symbols_list_default
+
+    Primitives = buildPrimitives(inSymbols, outSymbols, None, None)
+
     rules = [
     "dax -> RED",
     "lug -> BLUE",
@@ -224,10 +233,7 @@ if __name__ == "__main__":
     i = 0
     oldUsedPrims = []
     for ll,_,p, usedPrims in g.enumeration(Context.EMPTY,[],request,
-                                            50.,
-                                            lowerBound=49.5,
-                                            maximumDepth=20,
-                                            uniquePrims=True):
+                               50., lowerBound=0, maximumDepth=20 ,uniquePrims=True):
         #print(p)
         #print(usedPrims)
         #print()
