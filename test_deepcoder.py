@@ -8,6 +8,7 @@ from type import Context
 from scanPrimitives import tGrammar
 from util import cuda_a_dict
 from agent import parse_rules
+import random
 
 def compute_score(g, IO):
     score = 0.
@@ -31,7 +32,8 @@ def test_deepcoder(sample, dc_model, model,
                    timeout=30,
                    mdlIncrement=0.5,
                    examples=None,
-                   query_examples=None):
+                   query_examples=None,
+                   cegis=False):
 
     #states, _ = model.sample_to_statelist(sample)
     #initial_state = states[0]
@@ -46,14 +48,25 @@ def test_deepcoder(sample, dc_model, model,
         query_examples = [(cur, tgt) for cur, tgt in zip(sample['xq'], sample['yq']) if cur not in sample['xs'] ]
         test_IO = list(zip(*query_examples)) #check it out
 
+        if cegis:
+            xs = sample['xs']
+            ys = sample['ys']
+            cegis_IO = (xs[:cegis], ys[:cegis])
+
 
     states, rules = model.sample_to_statelist(sample)
     #for state, rule in zip(states, rules):
     assert len(rules) == 1
-    running_sample = model.state_rule_to_sample(states[0], rules[0] ) 
+    running_sample = model.state_rule_to_sample(states[0], [] ) 
     running_sample = cuda_a_dict(running_sample)
 
+
+    #states, _ = model.sample_to_statelist(sample)
+    #initial_state = states[0]
+
+
     #setup
+
     if enum_only:
         g = dc_model.grammar
     else: g = dc_model.infer_grammar(running_sample)
@@ -76,6 +89,7 @@ def test_deepcoder(sample, dc_model, model,
 
     best = None
     bestScore = 0
+    bestCegisScore = 0
 
     try:
         def timeoutCallBack(_1, _2): raise EvaluationTimeout()
@@ -92,7 +106,18 @@ def test_deepcoder(sample, dc_model, model,
                 intGrammar = expr.evaluate([])
                 intGrammar = parse_rules(intGrammar, input_symbols=symbols) #TODO
 
-                score = compute_score(intGrammar, IO)
+                #import pdb; pdb.set_trace()
+
+                if cegis:
+                    cegisScore = compute_score(intGrammar, cegis_IO)
+                    if cegisScore > 0:
+                        score = compute_score(intGrammar, IO)
+                    else: 
+                        score = 0
+                else:
+                    score = compute_score(intGrammar, IO)
+
+                #print(score)
 
                 if score > bestScore:
                     bestScore = score

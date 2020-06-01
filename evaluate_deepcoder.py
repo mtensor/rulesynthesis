@@ -75,6 +75,7 @@ if __name__=='__main__':
     parser.add_argument('--lr', type=float, default=0.001, help='ADAM learning rate', dest='adam_learning_rate')
     parser.add_argument('--use_saved_val', action='store_true', help='use saved validation problems')
     parser.add_argument('--num_pretrain_episodes', type=int, default=100000, help='number of episodes for training')
+    parser.add_argument('--cegis', type=int, default=False, help='reduce number of examples to check')
     args = parser.parse_args()
     torch.cuda.set_device(args.gpu)
 
@@ -106,7 +107,7 @@ if __name__=='__main__':
         assert False, "not implemented yet"
 
 
-    g = buildBaseGrammar(model.input_lang, model.output_lang)
+    g = buildBaseGrammar(model.input_lang, model.output_lang, model.prog_lang)
     path = os.path.join(args.dir_model, args.fn_out_model)
     if os.path.isfile(path):
         dc_model = torch.load(path)
@@ -131,6 +132,11 @@ if __name__=='__main__':
         model.output_lang = output_lang
         if not args.val_ll_only:
             model.prog_lang = prog_lang
+
+        dc_model.input_lang = input_lang
+        dc_model.output_lang = output_lang
+        if not args.val_ll_only:
+            dc_model.prog_lang = prog_lang
 
 
     if args.load_data:
@@ -178,13 +184,13 @@ if __name__=='__main__':
                                     symbols=model.input_lang.symbols,
                                     enum_only=args.enum_only,
                                     timeout=args.timeout,
-                                    mdlIncrement=50)
+                                    mdlIncrement=50,
+                                    cegis=args.cegis)
 
         print(hit)
         print(solution)
         print("nodes:", stats['nodes_expanded'])
         print("frac hit", stats['fraction_query_hit'])
-
 
         # batched_test_with_sampling(sample, model, max_len=1 if 'RB' in args.type or 'Word' in args.type else 15, 
         #                             examples=examples,

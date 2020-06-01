@@ -58,7 +58,7 @@ def _infix_rule(lhsToken):
     return lambda v1: lambda v2: lambda lst: fi(lhsToken, v1, v2, lst)
 
 _concat_rule = ['u1', 'x1', '->', '[u1]', '[x1]']
-_u_rule = ['u1, u2', '->', '[u2]', '[u1]']
+_u_rule = ['u1', 'u2', '->', '[u2]', '[u1]']
 
 #types:
 tRHSToken = baseType("RHSToken")
@@ -75,7 +75,7 @@ tGrammar = baseType("Grammar")
 tVar = baseType("Var")
 tPos = baseType("Pos")
 
-def buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules):
+def buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules, use_empty_str=False):
     #params
     LHSTokens = inSymbols
     RHSTokens = outSymbols
@@ -110,6 +110,8 @@ def buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules):
         Primitive("concat_rule", tLastRule, _concat_rule),
         Primitive("u_rule", tLastRule, _u_rule),
         ]
+    if use_empty_str:
+        Primitives.append( Primitive("empty_str", tRHSToken, "") ) #keeping in both, i suppose
 
     return Primitives
 
@@ -131,7 +133,11 @@ def buildFromArgs(fn, args):
     return e
 
 def buildPrimRule(prim):
-    lhs, _ , rhs = prim
+    if len(prim) == 3:
+        lhs, _ , rhs = prim
+    else: 
+        lhs, _ = prim
+        rhs = "empty_str"
     return buildFromArgs(Primitive.GLOBALS["prim_rule"],
         [Primitive.GLOBALS[lhs] , Primitive.GLOBALS[rhs]] )
 
@@ -183,12 +189,14 @@ def rulesToECProg(rules):
     expr = buildFromArgs(g, [primRules, HORules, lastRule] )
     return expr
 
-def buildBaseGrammar(inLang, outLang, n_prims=None, n_ho_rules=None): #TODO
+def buildBaseGrammar(inLang, outLang, progLang, n_prims=None, n_ho_rules=None): #TODO
 
     inSymbols = inLang.symbols
     outSymbols = outLang.symbols
 
-    g = Grammar.uniform(buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules))
+    use_empty_str = ("" in progLang.symbols)
+
+    g = Grammar.uniform(buildPrimitives(inSymbols, outSymbols, n_prims, n_ho_rules, use_empty_str=use_empty_str))
     return g
 
 if __name__ == "__main__":

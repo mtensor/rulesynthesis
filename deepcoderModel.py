@@ -23,7 +23,9 @@ def deepcoder_training_step(samples, dc_model, model):
     programs = []
     for sample in samples:
         rules = [r.split() for r in ' '.join(sample['grammar']).split('\n') ]
-        program = rulesToECProg(rules) #TODO
+        try:
+            program = rulesToECProg(rules) #TODO
+        except KeyError: return None
         programs.append(program)
     loss = dc_model.optimizer_step(samples, programs, requests)
     return loss/len(samples)
@@ -55,6 +57,7 @@ class DeepcoderRecognitionModel(nn.Module):
         super(DeepcoderRecognitionModel, self).__init__()
         self.grammar = grammar
         self.use_cuda = torch.cuda.is_available()
+        self.pretrain_episode=0
 
         self.featureExtractor = featureExtractor
         # Sanity check - make sure that all of the parameters of the

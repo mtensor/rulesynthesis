@@ -28,8 +28,8 @@ parser.add_argument('--type', type=str, default="miniscanRBbase")
 parser.add_argument('--use_saved_val', action='store_true', help='use saved validation problems')
 parser.add_argument('--saved_val_path', type=str, default='miniscan_hard_saved_val.p')
 parser.add_argument('--parallel', type=int, default=None)
-parser.add_argument('--print_freq', type=int, default=100)
-parser.add_argument('--save_freq', type=int, default=500)
+parser.add_argument('--print_freq', type=int, default=10)
+parser.add_argument('--save_freq', type=int, default=10)
 parser.add_argument('--positional', action='store_true')
 args = parser.parse_args()
 args.use_cuda = torch.cuda.is_available()
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     else:
         assert False, "not implemented yet"
 
-    g = buildBaseGrammar(model.input_lang, model.output_lang)
+    g = buildBaseGrammar(model.input_lang, model.output_lang, model.prog_lang)
     path = os.path.join(args.dir_model, args.fn_out_model)
     if os.path.isfile(path):
         dc_model = torch.load(path)
@@ -91,6 +91,7 @@ if __name__ == '__main__':
         # Generate a random episode
         
         train_loss = deepcoder_training_step(samples, dc_model, model)
+        if train_loss is None: continue
         
         avg_train_loss += train_loss
         counter += 1
@@ -111,9 +112,11 @@ if __name__ == '__main__':
                 dc_model.grammar = None
                 torch.save(dc_model, path)
                 dc_model.grammar = g
+                print("saved_model")
             if episode % 10000 == 0 or episode == dc_model.num_pretrain_episodes:
                 g = dc_model.grammar
                 dc_model.grammar = None
                 torch.save(dc_model, path+'_'+str(dc_model.pretrain_episode))
+                print("saved_model")
                 dc_model.grammar = g
 

@@ -30,6 +30,28 @@ mkdir testnums
 
 We use `zsh`, though `bash` should also work for running the `.sh` scripts.
 
+## DEEPCODER + enumeration experiments:
+
+to train MiniSCAN:
+```
+python trainDeepcoderModel.py --fn_out_model 'dc_model.p' --batchsize 128 --episode_type 'rules_gen'    
+```
+
+to train SCAN:
+```
+python trainDeepcoderModel.py --fn_out_model 'dc_model_SCAN.p' --batchsize 128 --episode_type 'scan_random'
+```
+
+to test MiniSCAN:
+```
+zsh deepcoder_runs.sh
+```
+
+to test SCAN:
+```
+zsh deepcoder_scan_runs.sh
+```
+
 ## MiniSCAN experiments
 
 to train synthesis network:
