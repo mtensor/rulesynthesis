@@ -377,7 +377,7 @@ def get_episode_generator(episode_type):
     
     if episode_type in ['scan_random',
             'scan_length_original', 'scan_simple_original', 'scan_around_right_original', 'scan_jump_original',
-            'wordToNumber', 'rules_gen'] or 'lang_' in episode_type:
+            'wordToNumber', 'rules_gen', 'rules_gen_xl'] or 'lang_' in episode_type:
 
         #todo: check that it uses 
         generate_episode_train, generate_episode_test, input_lang, output_lang, _ = util.get_episode_generator(episode_type)

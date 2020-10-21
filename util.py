@@ -363,6 +363,23 @@ def get_episode_generator(episode_type, model_in_lang=None, model_out_lang=None,
 
         generate_episode_test = generate_episode_train
 
+    elif episode_type == 'rules_gen_xl':
+        
+        input_lang = Lang(input_symbols_list_default + ['mup', 'dox', 'kleek'] + ['bup', 'veem', 'glaxer', 'gaw', 'dope']) #default has 9 symbols
+        #output_lang defaults to 8 symbols, that works
+
+        prog_lang = Lang (input_lang.symbols + output_lang.symbols + ['->', '\n', 'x1', 'u1', '[x1]', '[u1]', 'x2', '[x2]', 'u2', '[u2]']) 
+
+        #what does it do to have unused query items?
+        def generate_episode_train(tabu_episodes):
+            nprims = random.choice((3,4))
+            nsupp = random.choice(range(10,21))
+            nrules = random.choice((2,3,4))
+            return generate_rules_episode(nsupport=nsupp,nquery=10,nprims=nprims,nrules=nrules,input_lang=input_lang,output_lang=output_lang, prog_lang=prog_lang, tabu_list=tabu_episodes)      
+
+        generate_episode_test = generate_episode_train
+
+
     elif 'rules_sup_' in episode_type:
         nSupp = int(episode_type.split('_')[-1])
         input_lang = Lang(input_symbols_list_default + ['mup', 'dox', 'kleek'] ) #default has 9 symbols
@@ -378,7 +395,7 @@ def get_episode_generator(episode_type, model_in_lang=None, model_out_lang=None,
 
     elif 'rules_horules_' in episode_type:
         nHO = int(episode_type.split('_')[-1])
-        input_lang = Lang(input_symbols_list_default + ['mup', 'dox', 'kleek'] ) #default has 9 symbols
+        input_lang = Lang(input_symbols_list_default + ['mup', 'dox', 'kleek'] + ['bup', 'veem', 'glaxer', 'gaw', 'dope']) #default has 9 symbols
         #output_lang defaults to 8 symbols, that works
         prog_lang = Lang (input_lang.symbols + output_lang.symbols + ['->', '\n', 'x1', 'u1', '[x1]', '[u1]', 'x2', '[x2]', 'u2', '[u2]']) 
         #what does it do to have unused query items?

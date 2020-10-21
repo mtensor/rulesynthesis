@@ -406,6 +406,7 @@ def parseExamples_ES():
 				lst.append(convert_dict[word])
 			elif '\xad' in word:
 				newWord = convert_dict[''.join(word.split('\xad'))]
+				lst.append(newWord)
 			else: assert False, f"bad word: {word}"
 		#convert_dict.get(word) for word in words]
 		convertedWords =  ' '.join(lst)
