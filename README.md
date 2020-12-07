@@ -1,10 +1,11 @@
 # PyTorch implementation of "Learning Compositional Rules via Neural Program Synthesis"
 
-This is the codebase for the following paper:
+This is the codebase for the NeurIPS 2020 paper:
 
 _Learning Compositional Rules via Neural Program Synthsis_\
 Maxwell I. Nye, Armando Solar-Lezama, Joshua B. Tenenbaum, Brenden M. Lake\
 [https://arxiv.org/pdf/2003.05562.pdf](https://arxiv.org/pdf/2003.05562.pdf)
+[NeurIPS 2020 Proceedings](https://papers.nips.cc/paper/2020/hash/7a685d9edd95508471a9d3d6fcace432-Abstract.html)
 
 Much of this code is based on the [meta seq2seq](https://github.com/facebookresearch/meta_seq2seq) code by Brenden Lake.
 
